@@ -1,0 +1,23 @@
+curl --request GET \
+  --url http://localhost:9000/api/persons \
+  --header 'Authorization: Bearer ...'
+
+curl --request GET \
+  --url http://localhost:9000/api/person/1 \
+  --header 'Authorization: Bearer ...'
+
+curl --request POST \
+  --url http://localhost:9000/api/person \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer ...' \
+  --data '{"_id": 1, "name": "Jhon Doe", "age": 20}'
+
+curl --request PUT \
+  --url http://localhost:9000/api/person \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer ...' \
+  --data '{"_id": 1, "name": "John Doe", "age": 32, "address":{"street": "Bonanza", "no": 45, "zip": 231257}}'
+
+curl --request DELETE \
+  --url http://localhost:9000/api/person/1 \
+  --header 'Authorization: Bearer ...'
