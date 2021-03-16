@@ -23,7 +23,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.StatusCodes.BadRequest
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
-import scalable.solutions.denver.cors.Cors.cors
+import scalable.solutions.denver.cors.Cors
 import scalable.solutions.denver.handlers.Handlers._
 import scalable.solutions.denver.handlers.PersonRejection
 import scalable.solutions.denver.json.PersonJsonProtocol._
@@ -59,7 +59,7 @@ sealed trait WellKnownRoutes {
   }
 }
 
-case class PersonRoutes(service: PersonServices) extends WellKnownRoutes {
+case class PersonRoutes(service: PersonServices) extends WellKnownRoutes with Cors {
 
   val personsRoute: Route = path("persons") {
 
@@ -139,10 +139,10 @@ case class PersonRoutes(service: PersonServices) extends WellKnownRoutes {
     }
   }
 
-  val routes: Route = handleExceptions(exceptionHandler) {
+  def routes(corsEnabled: Boolean): Route = handleExceptions(exceptionHandler) {
     handleRejections(rejectionHandler) {
       pathPrefix("api") {
-        cors {
+        cors(corsEnabled) {
           personsRoute ~ personRoute ~ createPersonRoute ~ updatePersonRoute ~ deletePersonRoute
         }
       } ~ wellKnown

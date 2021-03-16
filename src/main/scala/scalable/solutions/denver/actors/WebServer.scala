@@ -52,6 +52,7 @@ object WebServer {
 class WebServer(context: ActorContext[Command]) extends AbstractBehavior[Command](context) {
   context.log.info("Web Server started")
   private val config = context.system.settings.config
+  private val corsEnabled = config.getBoolean("akka.http.corsEnabled")
   private val host = config.getString("akka.http.host")
   private val port = config.getInt("akka.http.port")
   private val services = PersonServices(context.self)
@@ -66,7 +67,7 @@ class WebServer(context: ActorContext[Command]) extends AbstractBehavior[Command
 
   override def onMessage(msg: Command): Behavior[Command] = msg match {
     case Startup =>
-      Http().newServerAt(host, port).bind(routes.routes)
+      Http().newServerAt(host, port).bind(routes.routes(corsEnabled))
       context.log.info(s"Server online at http://$host:$port/")
       Behaviors.same
     case Shutdown =>
