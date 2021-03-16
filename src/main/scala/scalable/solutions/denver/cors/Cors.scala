@@ -21,32 +21,66 @@ package scalable.solutions.denver.cors
 
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model.StatusCodes.NoContent
-import akka.http.scaladsl.model.headers._
+import akka.http.scaladsl.model.headers.{`Access-Control-Allow-Origin`, _}
 import akka.http.scaladsl.server.Directives.{complete, options, respondWithHeaders, _}
 import akka.http.scaladsl.server.Route
+import com.typesafe.config.ConfigFactory
 
-trait Cors {
+import scala.jdk.CollectionConverters._
+
+object Cors {
+
+  private val cfg = ConfigFactory.load.getConfig("akka.http.cors")
+  private val allowOrigin = cfg.getString("allowOrigin")
+  private val allowCredentials = cfg.getBoolean("allowCredentials")
+  private val allowHeaders = cfg.getStringList("allowHeaders")
+  private val allowMethods = cfg.getStringList("allowMethods")
+  private val exposeHeaders = cfg.getStringList("exposeHeaders")
+  private val maxAge = cfg.getInt("maxAge")
+
+  private val accessControlAllowOrigin = configAccessControlAllowOrigin(allowOrigin)
+  private val accessControlAllowCredentials = `Access-Control-Allow-Credentials`(allowCredentials)
+  private val accessControlAllowHeaders = `Access-Control-Allow-Headers`(allowHeaders.asScala.toList)
+  private val accessControlAllowMethods = `Access-Control-Allow-Methods`(allowMethods.asScala.toList.map(toHttpMethod))
+  private val accessControlMaxAge = `Access-Control-Max-Age`(maxAge)
+  private val accessControlExposeHeaders = `Access-Control-Expose-Headers`(exposeHeaders.asScala.toList)
 
   private val responseHeaders = List(
-    `Access-Control-Allow-Origin`.*,
-    `Access-Control-Allow-Credentials`(true),
-    `Access-Control-Allow-Headers`("Authorization", "Content-Type", "X-Requested-With"),
-    `Access-Control-Allow-Methods`(GET, POST, PUT, DELETE, OPTIONS)
+    accessControlAllowOrigin,
+    accessControlAllowCredentials,
+    accessControlAllowHeaders,
+    accessControlAllowMethods,
+    accessControlMaxAge,
+    accessControlExposeHeaders
   )
 
-  /** CORS preflight request */
-  private val preFlight: Route = options {
-    respondWithHeaders(responseHeaders) {
-      complete(NoContent)
+  private def toHttpMethod(method: String) =
+    method match {
+      case "CONNECT" => CONNECT
+      case "DELETE" => DELETE
+      case "GET" => GET
+      case "HEAD" => HEAD
+      case "OPTIONS" => OPTIONS
+      case "PATCH" => PATCH
+      case "POST" => POST
+      case "PUT" => PUT
+      case "TRACE" => TRACE
     }
-  }
 
-  protected def cors(enabled: Boolean)(inner: => Route): Route =
-    if (enabled) {
-      respondWithHeaders(`Access-Control-Allow-Origin`.*) {
-        preFlight ~ inner
+  private def configAccessControlAllowOrigin(allowOrigin: String) =
+    allowOrigin match {
+      case "*" => `Access-Control-Allow-Origin`.*
+      case "null" => `Access-Control-Allow-Origin`.`null`
+      case _ => `Access-Control-Allow-Origin`(HttpOrigin(allowOrigin))
+    }
+
+  def cors(inner: => Route): Route =
+    options {
+      // preflight
+      respondWithHeaders(responseHeaders) {
+        complete(NoContent)
       }
-    } else {
+    } ~ respondWithHeaders(accessControlAllowOrigin) {
       inner
     }
 }
