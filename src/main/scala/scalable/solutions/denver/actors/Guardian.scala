@@ -33,7 +33,7 @@ object Guardian {
 
   def apply(): Behavior[GuardianCommand] = {
     Behaviors.setup[GuardianCommand] { context =>
-      val serverBehavior = WebServer()
+      val serverBehavior: Behavior[Command] = WebServer()
       Behaviors.supervise(serverBehavior).
         onFailure[Exception](SupervisorStrategy.restart)
       val webServer: ActorRef[WebServer.Command] =

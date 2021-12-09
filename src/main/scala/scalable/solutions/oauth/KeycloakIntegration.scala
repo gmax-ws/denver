@@ -80,7 +80,7 @@ object KeycloakIntegration {
     val typ = data.getOrElse("typ", JsString("?")).convertTo[String]
     val clientId = data.getOrElse("client_id", JsString("?")).convertTo[String]
     val realm = data.getOrElse("realm_access", JsNull)
-    val roles = if (realm != JsNull) realm.asJsObject.fields.getOrElse("roles", JsArray.empty).convertTo[Array[String]] else Array.empty
+    val roles = if (realm != JsNull) realm.asJsObject.fields.getOrElse("roles", JsArray.empty).convertTo[Array[String]] else Array.empty[String]
     AuthInfo(active, typ, clientId, roles.toList.map(_.toUpperCase))
   }
 

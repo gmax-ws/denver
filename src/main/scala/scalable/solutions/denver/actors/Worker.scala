@@ -19,8 +19,8 @@
  */
 package scalable.solutions.denver.actors
 
-import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed._
+import akka.actor.typed.scaladsl.Behaviors
 import scalable.solutions.denver.PersonOp._
 import scalable.solutions.denver.PersonQuery
 import scalable.solutions.denver.repo.PersonRepo

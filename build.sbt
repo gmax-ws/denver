@@ -6,11 +6,11 @@ scalaVersion := "2.13.4"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
-val akkaVersion = "2.6.13"
-val akkaHttpVersion = "10.2.4"
-val logbackVersion = "1.2.3"
-val mongoVersion = "4.2.2"
-val jodaVersion = "2.10.10"
+val akkaVersion = "2.6.17"
+val akkaHttpVersion = "10.2.6"
+val logbackVersion = "1.2.7"
+val mongoVersion = "4.4.0"
+val jodaVersion = "2.10.13"
 
 libraryDependencies ++= Seq(
   "org.mongodb.scala" %% "mongo-scala-driver" % mongoVersion,

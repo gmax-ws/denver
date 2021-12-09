@@ -58,7 +58,7 @@ class WebServer(context: ActorContext[Command]) extends AbstractBehavior[Command
   private val repo: PersonRepo = PersonMongo.repo(config)
   private val pool: PoolRouter[WorkerCommand] =
     Routers.pool(poolSize = config.getInt("akka.router.pool-size")) {
-    Behaviors.supervise(Worker()).onFailure[Exception](SupervisorStrategy.restart)
+    Behaviors.supervise(Worker()).onFailure(SupervisorStrategy.restart)
   }
 
   override def onMessage(msg: Command): Behavior[Command] = msg match {
